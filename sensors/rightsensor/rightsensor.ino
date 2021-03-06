@@ -1,24 +1,23 @@
 #include "RAK811.h"
 #include "SoftwareSerial.h"
-#define WORK_MODE LoRaWAN // LoRaWAN or LoRaP2P
-#define JOIN_MODE ABP	  // OTAA or ABP
-#define US915 8			  // See table in RAK811.h
-#define PACKAGE_TYPE 1	  // See table in RAK811.h
+#include "StrToHex.h"
+#include "secrets.h"
+#include
 
-String NwkSKey = NWKSKEYR
-String AppSKey = APPSKEYR
-String DevArrd = DEVADDRR
+#define WORK_MODE LoRaWAN	   // LoRaWAN or LoRaP2P
+#define JOIN_MODE ABP		   // OTAA or ABP
+#define US915 8				   // See table in RAK811.h
+#define PACKAGE_TYPE_CONFIRM 1 // See table in RAK811.h
 
+String NwkSKey = NWKSKEYR;
+String AppSKey = APPSKEYR;
+String DevAddr = DEVADDRR;
 
 #define TXpin 11 // Set the virtual serial port pins
 #define RXpin 10
+
 #define DebugSerial Serial
 SoftwareSerial ATSerial(RXpin, TXpin); // Declare a virtual serial port between RAK and Arduino
-
-char buff[64] = "72616B776972656C657373";
-
-// I can't believe this is necessary
-char hex_char_lookup[17] = "0123456789ABCDEF";
 
 bool InitLoRaWAN(void);
 RAK811 RAKLoRa(ATSerial, DebugSerial);
@@ -66,7 +65,7 @@ void setup()
 	}
 	DebugSerial.println(F("Join LoRaWAN success"));
 
-	if (!RAKLoRa.rk_isConfirm(PACKAGE_TYPE)) //set LoRa data send package type:0->unconfirm, 1->confirm
+	if (!RAKLoRa.rk_isConfirm(PACKAGE_TYPE_CONFIRM)) //set LoRa data send package type:0->unconfirm, 1->confirm
 	{
 		DebugSerial.println(F("LoRa data send package set error,please reset module."));
 	}
@@ -88,39 +87,15 @@ bool InitLoRaWAN(void)
 	return false;
 }
 
-// Hex representation of upper 4 bits of ascii representation of char
-char upper_bits(const char ch)
-{
-	int bits = (ch & 0xF0) >> 4;
-	return hex_char_lookup[bits];
-}
-
-// Hex reperesentatino of lower 4 bits of ascii representatino of char
-char lower_bits(const char ch)
-{
-	int bits = ch & 0x0F;
-	return hex_char_lookup[bits];
-}
-
-// Convert data in str to hex and store in buffer
-void str_to_buffer(String str)
-{
-	// Clear buffer
-	memset(buff, 0, 64);
-	if (str.length() > 63 / 2)
-		*buff = 0;
-	for (unsigned i = 0; i < str.length(); ++i) {
-		buff[2 * i] = upper_bits(str[i]);
-		buff[2 * i + 1] = lower_bits(str[i]);
-	}
-}
-
 void loop()
 {
 	DebugSerial.println("=====================");
 
 	String data = "Left: 2m";
-	str_to_buffer(data);
+	// rk_sendData requires data to be a hex string made of ASCII chars. WTF
+	char buff[BUF_SIZE] = "";
+	memset(buff, 0, BUF_SIZE);
+	str_to_hex(data, buff);
 
 	DebugSerial.println(F("Sending data: "));
 	DebugSerial.println((String)buff);
@@ -130,6 +105,4 @@ void loop()
 	ret = RAKLoRa.rk_recvData();
 	DebugSerial.println(ret);
 	delay(500);
-
-
 }
