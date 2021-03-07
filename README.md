@@ -5,7 +5,7 @@ This is a midterm project. There is some deliberately bad security practices her
 
 ### PLEASE DO NOT USE THIS IN ANY SORT OF PRODUCTION!
 If you want to use this in a long term project, fork it and modify what you need.
-Again, this project is deliberatly insecure!!
+Again, this project is deliberately insecure!!
 
 
 ## Project Description
