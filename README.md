@@ -22,6 +22,7 @@ There is also a server written in Python3 running on the Raspbery PI 4 that doub
 
 ## Libraries
 This project uses a RAK811 library , as well as a Grove Ranger library, both maintained by the manufacturer.
-Links:
-RAK811:
-Grove Ultrasonic Ranger
+Links
+  RAK811: https://github.com/RAKWireless/WisNode-Arduino-Library
+
+  Grove Ultrasonic Ranger: https://github.com/Seeed-Studio/Seeed_Arduino_UltrasonicRanger
