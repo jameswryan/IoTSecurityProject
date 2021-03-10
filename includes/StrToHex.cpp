@@ -1,9 +1,7 @@
 #ifndef STR_TO_HEX_CPP
 #define STR_TO_HEX_CPP
 
-#include "Arduino.h"
 #include "StrToHex.h"
-#include "WString.h"
 
 const char upper_bits(const char ch)
 {
@@ -30,6 +28,18 @@ void str_to_hex(const String str, char* buff)
 	for (unsigned i = 0; i < str.length(); ++i) {
 		buff[2 * i] = upper_bits(str[i]);
 		buff[2 * i + 1] = lower_bits(str[i]);
+	}
+}
+
+void hex_to_str(const String hex, char* buff)
+{
+	memset(buff, 0, BUF_SIZE);
+	for (unsigned i = 0; i < hex.length(); i += 2) {
+		char h_nbb = hex[i];
+		char l_nbb = hex[i + 1];
+		const char chs[3] = {h_nbb, l_nbb, '\0'};
+
+		buff[i / 2] = strtoul(chs, NULL, 16);
 	}
 }
 #endif
