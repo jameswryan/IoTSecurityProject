@@ -14,7 +14,7 @@ This is a 'smart' parking lot tracking system.
 There are two distance sensors on either side of an entrance, and when a vehicle passes by one sensor will be closer than the other.
 By using this, we can determine whether the vehicle is leaving or entering.
 
-There is also a display, which for now is a 2x23 LCD screen that displays the occupancy of a parking lot, and a message whenever a vehicle enters or exits.
+There is also a display, which for now is a 2x16 LCD screen that displays the occupancy of a parking lot, and a message whenever a vehicle enters or exits.
 
 This repository contains the code for the sensors and the display.
 There is also a server written in Python3 running on the Raspbery PI 4 that doubles as a LoRaWAN gateway.
