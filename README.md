@@ -21,10 +21,14 @@ There is also a server written in Python3 running on the Raspbery PI 4 that doub
 
 
 ## Libraries
-This project uses an RAK811 library , as well as a Grove Ranger library, maintained by the respective manufacturers.
+This project uses an RAK811 library, as well as a Grove Ranger library, maintained by the respective manufacturers, as well as the Adafruit_LiquidCrystal library.
 
 RAK811:
 	https://github.com/RAKWireless/WisNode-Arduino-Library
 
 Grove Ultrasonic Ranger: 
 	https://github.com/Seeed-Studio/Seeed_Arduino_UltrasonicRanger
+
+Adafruit_LiquidCrystal:
+	https://github.com/adafruit/Adafruit_LiquidCrystal/
+	
