@@ -9,12 +9,12 @@
 #define JOIN_MODE ABP		   // OTAA or ABP
 #define US915 8				   // See table in RAK811.h
 #define PACKAGE_TYPE_CONFIRM 1 // See table in RAK811.h
+#define LORA_CLASS_D 2		   // See table in RAK811.h
 #define RAK_WAKEUP 0
 #define RAK_SLEEP 1
-#define TXpin 11			   // Set the virtual serial port pins
+#define TXpin 11 // Set the virtual serial port pins
 #define RXpin 10
 #define AT_SERIAL_BAUD 9600
-
 
 // Serial defines
 #define DebugSerial Serial
@@ -26,7 +26,7 @@
 #if __DEBUG_MODE__ == 1
 #define debug_println(st) DebugSerial.println(st)
 #else __DEBUG_MODE__ == 0
-	#define debug_println(st)
+#define debug_println(st)
 #endif
 
 #endif
