@@ -5,7 +5,7 @@ This is a midterm project. There is some deliberately bad security practices her
 
 ### PLEASE DO NOT USE THIS IN ANY SORT OF PRODUCTION!
 If you want to use this in a long term project, fork it and modify what you need.
-Again, this project is deliberatly insecure!!
+Again, this project is deliberately insecure!!
 
 
 ## Project Description
@@ -21,7 +21,10 @@ There is also a server written in Python3 running on the Raspbery PI 4 that doub
 
 
 ## Libraries
-This project uses a RAK811 library , as well as a Grove Ranger library, both maintained by the manufacturer.
-Links:
+This project uses an RAK811 library , as well as a Grove Ranger library, maintained by the respective manufacturers.
+
 RAK811:
-Grove Ultrasonic Ranger
+	https://github.com/RAKWireless/WisNode-Arduino-Library
+
+Grove Ultrasonic Ranger: 
+	https://github.com/Seeed-Studio/Seeed_Arduino_UltrasonicRanger
