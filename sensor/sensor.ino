@@ -5,6 +5,16 @@
 #include "cdefines.h"
 #include "secrets.h"
 
+/*
+	We're joining with Activation By Personalization, which is not the preferred method of joining.
+	Over The Air Activation would be better, since it reduces the number of necessary shared secrets
+	and generates new NwkSKeys and AppSKeys each time the device joins.
+	Using ABP, a malicious device could impersonate this device by capturing the join request sent to
+	the gateway, and stealing the NwkSKey, AppSKey, and DevAddr.
+	Were we using OTAA, the NwkSKey and AppSKey would be derived before joining by this device,
+	which would prevent the attack mentioned above.
+*/
+
 // These are defined in secrets.h and are changed depending on which sensor is being programmed
 String NwkSKey = NWKSKEYS;
 String AppSKey = APPSKEYS;
@@ -29,15 +39,15 @@ void setup()
 	while (DebugSerial.available()) {
 		DebugSerial.read();
 	}
-	#endif
-	delay(500); // Wait some time for everything to initialize
 	debug_println("DebugSerial started!");
+	#endif
 
 	debug_println("Starting ATSerial...");
-	ATSerial.begin(9600); //set ATSerial baudrate:This baud rate has to be consistent with  the baud rate of the WisNode device.
+	ATSerial.begin(9600); //set ATSerial baudrate:This baud rate has to be consistent with the baud rate of the WisNode device.
 	while (ATSerial.available()) {
 		ATSerial.read();
 	}
+	delay(500); // Wait some time for everything to initialize
 	debug_println("ATSerial started!");
 
 	debug_println("Setting work_mode...");
@@ -101,6 +111,14 @@ bool InitLoRaWAN(void)
 int sgn = 1;
 void loop()
 {
+	/*
+		Throughout this project, we are keeping track of the frame count.
+		This leaves our devices open to replay attacks, where a malicious device captures the data we
+		send to the gateway, and just sends it again.
+		We should really keep track of the up- and down- frame counts to prevent this.
+		We also don't do much error handling, preferring to just ignore it and try again.
+		This is more of an engineering problem than a security one, but it is important to mention.
+	*/
 	debug_println("=====================");
 
 	// Get distance data
@@ -113,7 +131,7 @@ void loop()
 	long dist = 200 + i;
 
 	// Determine if vehicle has entered
-	if (true) {
+	if (within_range(dist)) {
 
 		// Wake up RAK from sleep
 		RAKLoRa.rk_sleep(RAK_WAKEUP);
@@ -131,6 +149,10 @@ void loop()
 		debug_println((String)buff);
 		RAKLoRa.rk_sendData(1, buff);
 
+		/*
+			We should really check for an error here. Since we're not, we don't know whether the
+			data was recieved properly.
+		*/
 		String ret = RAKLoRa.rk_recvData();
 		debug_println(ret);
 
