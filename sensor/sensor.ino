@@ -1,9 +1,10 @@
+#include <StrToHex.h>
+#include <cdefines.h>
+#include <secrets.h>
+
 #include "RAK811.h"
 #include "SoftwareSerial.h"
-#include "StrToHex.h"
 #include "Ultrasonic.h"
-#include "cdefines.h"
-#include "secrets.h"
 
 /*
 	We're joining with Activation By Personalization, which is not the preferred method of joining.
@@ -24,23 +25,22 @@ SoftwareSerial ATSerial(RXpin, TXpin); // Declare a virtual serial port between 
 
 #define ULTRASONIC_SENSOR_PIN 52
 Ultrasonic dist_sensor(ULTRASONIC_SENSOR_PIN);
-long dist_ref = 0;
 
 bool InitLoRaWAN(void);
 RAK811 RAKLoRa(ATSerial, DebugSerial);
 
 // Determine if measured distance is within sufficient range to count as vehicle.
-bool within_range(const int);
+bool within_range(const long);
 
 void setup()
 {
-	#if __DEBUG_MODE__ == 1
+#if __DEBUG_MODE__ == 1
 	DebugSerial.begin(DEBUG_SERIAL_BAUD);
 	while (DebugSerial.available()) {
 		DebugSerial.read();
 	}
 	debug_println("DebugSerial started!");
-	#endif
+#endif
 
 	debug_println("Starting ATSerial...");
 	ATSerial.begin(9600); //set ATSerial baudrate:This baud rate has to be consistent with the baud rate of the WisNode device.
@@ -82,13 +82,7 @@ void setup()
 	}
 
 	// Put RAK in sleep mode by default
-	RAKLoRa.rk_sleep(RAK_SLEEP);
-
-	debug_println("Getting distance reference...");
-	//dist_ref = dist_sensor.MeasureInCentimeters();
-	dist_ref = 400;
-	debug_println("Distance ref:");
-	debug_println(dist_ref);
+	//RAKLoRa.rk_sleep(RAK_SLEEP);
 
 }
 
@@ -108,7 +102,6 @@ bool InitLoRaWAN(void)
 	return false;
 }
 
-int sgn = 1;
 void loop()
 {
 	/*
@@ -122,13 +115,9 @@ void loop()
 	debug_println("=====================");
 
 	// Get distance data
-	//long dist = dist_sensor.MeasureInCentimeters();
-
-	int ran = rand();
-	int i =  (sgn) * constrain(ran, 0, 50);
-	sgn = sgn * -1;
-
-	long dist = 200 + i;
+	long dist = dist_sensor.MeasureInCentimeters();
+	debug_println("Distance: ");
+	debug_println(dist);
 
 	// Determine if vehicle has entered
 	if (within_range(dist)) {
@@ -153,11 +142,6 @@ void loop()
 			We should really check for an error here. Since we're not, we don't know whether the
 			data was recieved properly.
 		*/
-		String ret = RAKLoRa.rk_recvData();
-		debug_println(ret);
-
-		ret = RAKLoRa.rk_recvData();
-		debug_println(ret);
 
 		// Put RAK to sleep
 		RAKLoRa.rk_sleep(RAK_SLEEP);
@@ -167,8 +151,9 @@ void loop()
 
 bool within_range(const long dist)
 {
-	// Until it can be better tested, I set the threshold between 0.5 and 2.5 meters
-	if (dist > 50 && dist < 250)
+	// Until it can be better tested, I set the threshold between 1 and 3.8 meters.
+	//The sensor is not reliable above 4 meters, and so I leave a bit of space
+	if (dist > 150 && dist < 380)
 		return true;
 	return false;
 }
