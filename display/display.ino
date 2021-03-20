@@ -7,11 +7,15 @@
 #include "SoftwareSerial.h"
 #include "Wire.h"
 
+/*
+	See comment in sensor/sensor.ino about ABP vs OTAA.
+*/
+
 String NwkSKey = NWKSKEYD;
 String AppSKey = APPSKEYD;
 String DevAddr = DEVADDRD;
 
-#define LORA_CLASS LORA_CLASS_D // LoRa class for the display
+#define LORA_CLASS LORA_CLASS_C // LoRa class for the display
 
 SoftwareSerial ATSerial(RXpin, TXpin); // Declare a virtual serial port between RAK and Arduino
 
@@ -25,13 +29,14 @@ void setup()
 {
 	// set up the LCD's number of rows and columns:
 	lcd.begin(16, 2);
-	#if __DEBUF_MODE__ == 1
+	lcd.print("Spots: ?/?");
+#if __DEBUG_MODE__ == 1
 	DebugSerial.begin(115200);
 	while (DebugSerial.available()) {
 		DebugSerial.read();
 	}
 	debug_println("DebugSerial started!");
-	#endif
+#endif
 
 	debug_println("Starting ATSerial...");
 	ATSerial.begin(9600); //set ATSerial baudrate:This baud rate has to be consistent with  the baud rate of the WisNode device.
@@ -41,7 +46,7 @@ void setup()
 	delay(500); // Wait some time for everything to be initialized
 	debug_println("ATSerial started!");
 
-	RAKLoRa.rk_getVersion();					//get RAK811 firmware version
+	RAKLoRa.rk_getVersion();			  //get RAK811 firmware version
 	debug_println(RAKLoRa.rk_recvData()); //print version number
 
 	debug_println("Setting class...");
@@ -78,6 +83,9 @@ void setup()
 	{
 		debug_println(F("LoRa data send package set error,please reset module."));
 	}
+
+	// Send package to open windows
+	RAKLoRa.rk_sendData(1, "1234");
 }
 
 bool InitLoRaWAN(void)
@@ -108,34 +116,29 @@ String strip_data(const String& str)
 	return ret;
 }
 
-
 void loop()
 {
 	/*
 		There is no attempt made to check for errors, and whatever was sent is what is displayed.
-		A more better method would be to only accept integer data, and to store the text on the
+		A better method would be to only accept integer data, and to store the text on the
 		display. Additionally, there should be some checks that no errors were encountered.
 		A simple check would be to look for the text 'ERROR', and wait 1 second before trying again
 		if an error is encountered.
 	*/
+
 	String ret = RAKLoRa.rk_recvData();
-	do { // Continue looking for downlink data
-		debug_println(ret);
-		String data = strip_data(ret);
-		debug_println(ret);
-		if (data.length() < 2) // If only a few characters are sent, discard
-			continue;
-			// If the data sent wasn't empty
-		if (data != "") {
-			debug_println(data);
-			char str[BUF_SIZE];
-			hex_to_str(data, str);
-			debug_println(str);
-			lcd.clear();
-			lcd.setCursor(0, 0);
-			lcd.print(str);
-		} else
-			debug_println("No data!");
-	} while (ret != "");
+	debug_println(ret);
+	String data = strip_data(ret);
+	//debug_println(data);
+	if (data.length() > 2) { // If only a few characters are sent, discard
+		debug_println(data);
+		char str[BUF_SIZE];
+		hex_to_str(data, str);
+		debug_println(str);
+		lcd.clear();
+		lcd.setCursor(0, 0);
+		lcd.print(str);
+	}
+
 	delay(1000);
 }
